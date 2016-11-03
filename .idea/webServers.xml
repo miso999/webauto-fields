@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="a403b79c-4e56-4415-9e3b-26e1c2f37b63" name="Xampp wordpress" url="http://localhost/wordpress/">
+        <fileTransfer port="0" mountedRoot="C:\xampp\apps\wordpress\htdocs" accessType="MOUNT" />
+      </webServer>
+    </option>
+  </component>
+</project>
