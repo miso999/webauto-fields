@@ -5,7 +5,12 @@
 
 jQuery(document).ready(function ($) {
 
-    var counter = 2;
+    var listItem = $( "#webauto-fields div:last" );
+    var counter = $( "#webauto-fields div" ).index( listItem );
+
+    counter+=2;
+
+    console.log(counter);
 
     $("#addButton").click(function () {
 
