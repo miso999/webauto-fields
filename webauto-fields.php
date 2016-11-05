@@ -11,10 +11,75 @@ License: A "Slug" license name e.g. GPL2
 */
 
 
-function enqueue_my_scripts()
-{
+function enqueue_my_scripts() {
+
     wp_enqueue_script('script1', plugin_dir_url(__FILE__) . 'js/script.js');
 }
+
+function add_custom_meta_box()
+{
+    add_meta_box("demo-meta-box", "Technické údaje", "custom_meta_box_markup", "post", "normal", "high", null);
+}
+
+function custom_meta_box_markup($object)
+{
+    wp_nonce_field(basename(__FILE__), "meta-box-nonce");
+    $labels=array();
+    $meta = get_post_meta(get_the_ID(), '', true);
+    // Get all label in array $meta
+    foreach ($meta as $key => $value) {
+        if (strpos($key, 'label') === 0) {
+            $labels[$key] = $value;
+        }
+    }
+
+    ?>
+
+    <style>
+        #webauto-fields div {
+            padding: 5px 0;
+
+        }
+
+        #webauto-fields label, #webauto-fields input {
+            height: 25px;
+            vertical-align: middle;
+        }
+    </style>
+    <div id="out"></div>
+    <div id="webauto-fields">
+    <?php
+
+    if (count($labels))
+    foreach ($labels as $key => $value) {
+
+       $index=array_search($key, array_keys($labels));
+        $index+=1;
+        ?>
+
+        <div id="TextBoxDiv<?=$index?>">
+            <input type="text" name="label<?=$index?>" value="<?php echo get_post_meta($object->ID, "label".$index, true); ?>">  :
+            <input name="textbox<?=$index?>" type="text" value="<?php echo get_post_meta($object->ID, "textbox".$index, true); ?>">
+
+        </div>
+
+        <?php
+
+    }
+    ?>
+
+
+
+    </div>
+    <input type='button' value='+' id='addButton'>
+    <input type='button' value='-' id='removeButton'>
+
+
+
+<?php
+}
+
+
 
 function save_custom_meta_box($post_id, $post, $update)
 {
@@ -31,61 +96,28 @@ function save_custom_meta_box($post_id, $post, $update)
     if($slug != $post->post_type)
         return $post_id;
 
-    $meta_box_text_value = "";
+//TODO
+    foreach ($_POST as $post => $value) {
 
-    if(isset($_POST["meta-box-text1"]))
-    {
-        $meta_box_text_value = $_POST["meta-box-text1"];
+        update_post_meta($post_id, $post, $value);
     }
-    update_post_meta($post_id, "meta-box-text1", $meta_box_text_value);
-
-
 
 }
 
+function remove_custom_field_meta_box()
+{
+    remove_meta_box("postcustom", "post", "normal");
+}
+
+add_action("do_meta_boxes", "remove_custom_field_meta_box");
+add_action("add_meta_boxes", "enqueue_my_scripts");
+add_action("add_meta_boxes", "add_custom_meta_box");
 add_action("save_post", "save_custom_meta_box", 10, 3);
 
 
 
-function add_custom_meta_box()
-{
-    add_meta_box("demo-meta-box", "Technické údaje", "custom_meta_box_markup", "post", "normal", "high", null);
-}
-
-add_action("add_meta_boxes", "add_custom_meta_box");
-add_action("add_meta_boxes", "enqueue_my_scripts");
-
-function custom_meta_box_markup($object)
-{
-    wp_nonce_field(basename(__FILE__), "meta-box-nonce");
-
-    ?>
-
-    <style>
-        #webauto-fields div {
-            padding: 5px 0;
-
-        }
-
-        #webauto-fields label, #webauto-fields input {
-            height: 25px;
-            vertical-align: middle;
-        }
-    </style>
-    <div id="webauto-fields">
-        <div id="TextBoxDiv1">
-            <input type="text" value="Label #1">  :
-            <input name="meta-box-text1" type="text"
-                   value="<?php echo get_post_meta($object->ID, "meta-box-text1", true); ?>">
-
-
-        </div>
-
-    </div>
-    <input type='button' value='Add Button' id='addButton'>
-    <input type='button' value='Remove Button' id='removeButton'>
 
 
 
-    <?php
-}
+
+
