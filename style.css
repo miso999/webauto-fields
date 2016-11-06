@@ -1,0 +1,10 @@
+
+#webauto-fields div {
+    padding: 5px 0;
+
+}
+
+#webauto-fields label, #webauto-fields input {
+    height: 25px;
+    vertical-align: middle;
+}

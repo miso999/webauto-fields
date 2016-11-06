@@ -10,10 +10,17 @@ Author URI: http://URI_Of_The_Plugin_Author
 License: A "Slug" license name e.g. GPL2
 */
 
+function deleteBox($id) {
+    global $post_id;
+    delete_post_meta($post_id, $id);
+    $textbox=str_replace('label','textbox',$id);
+    delete_post_meta($post_id, $textbox);
+}
 
 function enqueue_my_scripts() {
 
-    wp_enqueue_script('script1', plugin_dir_url(__FILE__) . 'js/script.js');
+    wp_enqueue_script('webauto-fields', plugin_dir_url(__FILE__) . 'js/script.js');
+    wp_enqueue_style('webauto-fields', plugin_dir_url(__FILE__) . 'style.css');
 }
 
 function add_custom_meta_box()
@@ -34,45 +41,31 @@ function custom_meta_box_markup($object)
     }
 
     ?>
-
-    <style>
-        #webauto-fields div {
-            padding: 5px 0;
-
-        }
-
-        #webauto-fields label, #webauto-fields input {
-            height: 25px;
-            vertical-align: middle;
-        }
-    </style>
-    <div id="out"></div>
     <div id="webauto-fields">
     <?php
 
     if (count($labels))
-    foreach ($labels as $key => $value) {
+    foreach ($labels as $label => $value) {
 
-       $index=array_search($key, array_keys($labels));
-        $index+=1;
+        $textbox=str_replace('label','textbox',$label);
+        preg_match('/label([\d]+)/',$label,$in);
+        $in=$in[1];
         ?>
 
-        <div id="TextBoxDiv<?=$index?>">
-            <input type="text" name="label<?=$index?>" value="<?php echo get_post_meta($object->ID, "label".$index, true); ?>">  :
-            <input name="textbox<?=$index?>" type="text" value="<?php echo get_post_meta($object->ID, "textbox".$index, true); ?>">
-
+        <div id="TextBoxDiv<?=$in?>">
+            <input type="text" name="<?=$label?>" value="<?php echo get_post_meta($object->ID, $label, true); ?>">  :
+            <input type="text" name="<?=$textbox?>" value="<?php echo get_post_meta($object->ID, $textbox, true); ?>">
+            <button role="presentation" type="button" class="removeButton" id="<?=$in?>">x</button>
         </div>
 
         <?php
 
     }
     ?>
-
-
-
+        <div id="deleted" style="display: none;"></div>
     </div>
     <input type='button' value='+' id='addButton'>
-    <input type='button' value='-' id='removeButton'>
+
 
 
 
@@ -96,11 +89,14 @@ function save_custom_meta_box($post_id, $post, $update)
     if($slug != $post->post_type)
         return $post_id;
 
-//TODO
+
     foreach ($_POST as $post => $value) {
 
-        update_post_meta($post_id, $post, $value);
+        if($value=="DeleteThisCustomMeta") deleteBox($post);
+        else update_post_meta($post_id, $post, $value);
     }
+
+
 
 }
 

@@ -3,42 +3,31 @@
  */
 
 
+function createInput(counter) {
+    var newTextBoxDiv = jQuery(document.createElement('div')).attr("id", 'TextBoxDiv' + counter);
+    newTextBoxDiv.after().html('<input type="text" value="Názov" name="label' + counter + '">' +
+        ' :  <input type="text" name="textbox' + counter + '" id="textbox' + counter + '" value="" >' +
+        ' <button role="presentation" type="button" class="removeButton" id="' + counter + '" >x</button>');
+    newTextBoxDiv.appendTo("#webauto-fields");
+}
+
 jQuery(document).ready(function ($) {
-
-    var listItem = $( "#webauto-fields div:last" );
-    var counter = $( "#webauto-fields div" ).index( listItem );
-
-    counter+=2;
-
-    console.log(counter);
-
+    // Set counter to always start from 1
+    var counter = 1;
     $("#addButton").click(function () {
-
-
-        var newTextBoxDiv = $(document.createElement('div'))
-            .attr("id", 'TextBoxDiv' + counter);
-
-        newTextBoxDiv.after().html('<input type="text" value="Label #' + counter + '" name="label'+ counter +'">' +
-            ' :  <input type="text" name="textbox' + counter +
-            '" id="textbox' + counter + '" value="" >');
-
-        newTextBoxDiv.appendTo("#webauto-fields");
-
-
-        counter++;
-    });
-
-    $("#removeButton").click(function () {
-        if (counter == 1) {
-            alert("No more textbox to remove");
-            return false;
+        // While input name already exists, increase counter
+        while ($('input[name="label' + counter + '"]').length) {
+            counter++;
         }
-
-        counter--;
-
-        $("#TextBoxDiv" + counter).remove();
-
+        //Then create new input field
+        createInput(counter);
     });
 
+
+    $(".removeButton").live('click', function () {
+        jQuery("#TextBoxDiv" + this.id).remove();
+        $("#deleted").append('<input type="hidden" name="label' + this.id + '" value="DeleteThisCustomMeta">');
+    });
 
 });
+
